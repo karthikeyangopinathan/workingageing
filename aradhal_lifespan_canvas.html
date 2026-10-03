@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aradhal · Lifespan Opportunity Canvas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1b1b1a;--ink-soft:#5f5d58;--ink-faint:#9a978f;
+    --paper:#ffffff;--panel:#fbfaf7;--hair:#e9e6df;--hair-strong:#dcd8cf;
+    --signal:#F7941E;--signal-ink:#b5650a;
+    --founder:#F7941E;--observed:#3FA845;--mentor:#b4ac9f;--open:#c0392b;
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{line-height:1.45}
+  .wrap{max-width:1420px;margin:0 auto;padding:24px 22px 70px}
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;border-bottom:1px solid var(--hair);padding-bottom:14px;flex-wrap:wrap}
+  .brand{display:flex;align-items:baseline;gap:11px}
+  .mark{width:38px;height:19px;flex:none}
+  h1{font-size:18px;font-weight:800;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--ink-soft);font-size:13px;margin:4px 0 0;max-width:82ch}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{appearance:none;border:1px solid var(--hair-strong);background:#fff;font:inherit;font-weight:600;font-size:13px;color:var(--ink);padding:8px 13px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{border-color:var(--ink)}
+  .btn.primary{background:var(--signal);border-color:var(--signal);color:#fff}
+  .btn.primary:hover{background:#e78416}
+  .btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .btn:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+  .menu{position:relative}
+  .menu-pop{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--hair-strong);border-radius:11px;box-shadow:0 10px 30px rgba(0,0,0,.09);padding:6px;display:none;z-index:50;min-width:210px}
+  .menu-pop.show{display:block}
+  .menu-pop button{display:block;width:100%;text-align:left;border:0;background:transparent;font:inherit;font-size:13px;padding:9px 10px;border-radius:7px;cursor:pointer;color:var(--ink)}
+  .menu-pop button:hover{background:var(--panel)}
+  .menu-pop .mnote{font-size:11px;color:var(--ink-faint);padding:4px 10px 8px;line-height:1.4}
+  .layout{display:grid;grid-template-columns:1fr 316px;gap:22px;margin-top:18px}
+  @media(max-width:1080px){.layout{grid-template-columns:1fr}}
+  .canvas-wrap{background:var(--paper);border:1px solid var(--hair);border-radius:14px;padding:14px;overflow:auto}
+  #plane{position:relative;user-select:none;touch-action:none}
+  .spectrum{position:absolute;height:6px;border-radius:3px;opacity:.9}
+  .colh{position:absolute;font-size:11px;font-weight:700;text-align:center;color:var(--ink-soft);line-height:1.15}
+  .colh .age{display:block;font-size:9.5px;color:var(--ink-faint);font-weight:500}
+  .colh.pre{color:var(--ink-faint)}
+  .rowh{position:absolute;font-size:11.5px;font-weight:700;color:var(--ink-soft);display:flex;align-items:center;gap:6px;justify-content:flex-end;text-align:right}
+  .rowh i{width:8px;height:8px;border-radius:2px;flex:none}
+  .cell{position:absolute;border:1px solid var(--hair);border-radius:8px;overflow:hidden;cursor:pointer;background:#fcfbf9;transition:border-color .15s,box-shadow .15s}
+  .cell:hover{border-color:var(--hair-strong)}
+  .cell.empty{background:#fbfaf7;border-style:dotted}
+  .cell .coord{font-size:10px;font-weight:800;padding:4px 0 0 6px}
+  .cell .need{font-size:9px;color:var(--ink-faint);padding:1px 6px 0;line-height:1.2}
+  .cell.sel{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+  .cell.open{border-style:dashed;border-color:var(--open)}
+  .cell.open::after{content:"open";position:absolute;right:4px;top:3px;font-size:8px;font-weight:800;color:var(--open);opacity:.85}
+  .cell.marked{box-shadow:inset 0 0 0 2px rgba(192,57,43,.35)}
+  .cell.marked::after{content:"★";position:absolute;right:4px;top:2px;color:var(--open)}
+  .idea{position:absolute;width:148px;background:#fff;border:1px solid var(--hair-strong);border-left:4px solid var(--signal);border-radius:9px;box-shadow:0 4px 12px rgba(0,0,0,.09);padding:8px 9px 9px;cursor:grab;z-index:20}
+  .idea.prior{border-left-style:dashed;background:#fcfbf7}
+  .idea.dragging{cursor:grabbing;box-shadow:0 10px 24px rgba(0,0,0,.16);z-index:40;opacity:.96}
+  .idea.sel{outline:2px solid var(--ink);outline-offset:1px}
+  .idea .t{font-size:12px;font-weight:700;line-height:1.25;display:block;margin-bottom:4px;word-break:break-word}
+  .idea .tag{display:inline-block;font-size:9px;font-weight:800;color:var(--ink-faint);border:1px solid var(--hair-strong);border-radius:4px;padding:0 4px;margin-bottom:4px}
+  .idea .pdots{display:flex;gap:3px;flex-wrap:wrap}
+  .idea .pdots span{width:8px;height:8px;border-radius:50%}
+  .idea.linking{outline:2px dashed var(--signal);outline-offset:1px}
+  #links{position:absolute;inset:0;pointer-events:none;z-index:15}
+  #links line{stroke:var(--ink-faint);stroke-width:1.5;stroke-dasharray:3 3}
+  #ghost{position:fixed;pointer-events:none;z-index:999;width:148px;background:#fff;border:1px dashed var(--signal);border-radius:9px;padding:8px 9px;font-size:12px;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.14);opacity:.95;display:none}
+  aside{display:flex;flex-direction:column;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--hair);border-radius:13px;padding:14px}
+  .card h2{font-size:12px;font-weight:800;color:var(--ink-soft);margin:0 0 9px;letter-spacing:.01em}
+  .kicker{font-size:11px;color:var(--ink-faint);margin:0 0 9px;line-height:1.45}
+  .tray{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:11.5px;font-weight:600;border:1px dashed var(--hair-strong);background:#fff;border-radius:8px;padding:5px 9px;color:var(--ink-soft);cursor:grab;touch-action:none}
+  .chip:hover{border-color:var(--ink);color:var(--ink)}
+  .chip:active{cursor:grabbing}
+  label.fld{display:block;font-size:11px;font-weight:700;color:var(--ink-faint);margin:10px 0 4px}
+  input.ti,textarea.ti{width:100%;font:inherit;font-size:13px;border:1px solid var(--hair-strong);border-radius:8px;padding:7px 9px;background:#fff;color:var(--ink)}
+  textarea.ti{resize:vertical;min-height:52px}
+  input.ti:focus,textarea.ti:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
+  .pillset{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;border:1px solid var(--hair-strong);border-radius:999px;padding:3px 9px;cursor:pointer;background:#fff;color:var(--ink-soft)}
+  .pill i{width:8px;height:8px;border-radius:50%}
+  .pill[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)}
+  .pill[aria-pressed="true"]::before{content:"✓ ";font-weight:800}
+  .swatches{display:flex;gap:6px;margin-top:5px}
+  .sw{width:20px;height:20px;border-radius:6px;cursor:pointer;border:2px solid transparent}
+  .sw[aria-pressed="true"]{border-color:var(--ink)}
+  .rowbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .danger{color:#b4342a;border-color:#eccac6}
+  .danger:hover{border-color:#b4342a}
+  .item-list{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+  .item-list li{display:flex;gap:8px;align-items:flex-start;font-size:12px}
+  .item-list .cc{font-weight:800}
+  .item-list .cp{font-weight:600}
+  .item-list .cn{color:var(--ink-faint)}
+  .item-list .rm{margin-left:auto;border:0;background:transparent;color:var(--ink-faint);cursor:pointer;font-size:13px;padding:0 2px}
+  .item-list .rm:hover{color:#b4342a}
+  .open-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--hair);cursor:pointer;font-size:12px}
+  .open-row:first-child{border-top:0}
+  .open-row .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .open-row .nm{font-weight:700}.open-row .sb{color:var(--ink-faint);font-size:10.5px}
+  .big{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--ink-faint);margin-top:10px}
+  .legend .k{display:inline-flex;align-items:center;gap:5px}
+  .legend .k i{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .legend .k i.dash{border:1.5px dashed var(--open);background:transparent}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:10px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:200}
+  .toast.show{opacity:1}
+  .note{font-size:11.5px;color:var(--ink-faint);margin-top:14px;line-height:1.5}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 40 20" aria-hidden="true"><path d="M2 18 A 18 18 0 0 1 38 18" fill="none" stroke="var(--signal)" stroke-width="4" stroke-linecap="round"/></svg>
+        <h1>Lifespan opportunity canvas</h1>
+      </div>
+      <p class="sub">The problem space across the whole life course — now reaching back through early career, college, adolescence and childhood. No conviction labels are set; click any cell to add a <b>Founder / Observed / Mentor</b> status if and when you want one. Drag ideas onto problems; add your own needs to any cell.</p>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary" id="addIdea">+ New idea</button>
+      <button class="btn" id="linkBtn" aria-pressed="false">Link mode</button>
+      <div class="menu">
+        <button class="btn" id="shareBtn">Share ▾</button>
+        <div class="menu-pop" id="sharePop">
+          <button id="copyLink">Copy share link</button>
+          <button id="exportJson">Export canvas (.json)</button>
+          <button id="importJson">Import canvas (.json)</button>
+          <div class="mnote">The link carries the whole canvas in the URL. The .json is for versioning / backup.</div>
+        </div>
+      </div>
+      <button class="btn" id="resetBtn">Reset</button>
+      <input type="file" id="fileInput" accept="application/json" hidden>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="canvas-wrap">
+      <div id="plane"><svg id="links"></svg><div id="ideaLayer"></div></div>
+    </div>
+    <aside>
+      <div class="card">
+        <h2>Open ground</h2>
+        <p class="kicker">Demand cells with no idea card on them yet. Set a status on a cell to make it light up as dashed “open”.</p>
+        <div id="openSummary"></div>
+      </div>
+      <div class="card" id="selCard">
+        <h2 id="selHead">Selection</h2>
+        <div id="selBody"><p class="kicker" style="margin:0">Click a cell to read it, add needs, set a status, or mark white space. Click an idea card to edit it.</p></div>
+      </div>
+      <div class="card">
+        <h2>Parked priors — solution bias, handle with care</h2>
+        <p class="kicker">The twelve interventions from before. Hypotheses, not the map. Drag one onto a problem only if it genuinely earns the spot.</p>
+        <div class="tray" id="tray"></div>
+      </div>
+      <div class="card">
+        <h2>Legend</h2>
+        <div class="legend">
+          <span class="k"><i style="background:var(--founder)"></i>Founder</span>
+          <span class="k"><i style="background:var(--observed)"></i>Observed</span>
+          <span class="k"><i style="background:var(--mentor)"></i>Mentor</span>
+          <span class="k"><i class="dash"></i>open (needs a status)</span>
+          <span class="k"><i style="background:var(--open);opacity:.4"></i>★ you marked</span>
+        </div>
+        <p class="kicker" style="margin:10px 0 0">Status is optional — unset cells stay neutral.</p>
+      </div>
+    </aside>
+  </div>
+  <p class="note" id="foot"></p>
+</div>
+<div id="ghost"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- palette ---------- */
+const STOPS=[[0,'#16C2B3'],[12,'#3B82E0'],[20,'#4FB63C'],[32,'#AEBE1C'],[44,'#F7941E'],[54,'#EA3B2E'],[66,'#EC4899'],[82,'#7C4DD6'],[95,'#5A2E9E']];
+function lerp(a,b,t){return a+(b-a)*t}
+function hx(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+function xh(r){return '#'+r.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('')}
+function ageColor(a){a=Math.max(0,Math.min(95,a));for(let i=0;i<STOPS.length-1;i++){const[a0,c0]=STOPS[i],[a1,c1]=STOPS[i+1];if(a<=a1){const t=(a-a0)/(a1-a0),A=hx(c0),B=hx(c1);return xh([lerp(A[0],B[0],t),lerp(A[1],B[1],t),lerp(A[2],B[2],t)])}}return STOPS[STOPS.length-1][1]}
+function mix(c0,c1,t){const A=hx(c0),B=hx(c1);return xh([lerp(A[0],B[0],t),lerp(A[1],B[1],t),lerp(A[2],B[2],t)])}
+
+/* ---------- bands: 4 younger stages + A–F ---------- */
+const BANDS=[
+ {b:'K',age:7, lab:'Kids <12', pre:true},
+ {b:'S',age:12,lab:'Adolescence', pre:true},
+ {b:'U',age:18,lab:'College', pre:true},
+ {b:'W',age:25,lab:'Early career', pre:true},
+ {b:'A',age:32,lab:'Planning'},
+ {b:'B',age:45,lab:'Mid-career'},
+ {b:'C',age:55,lab:'Dual-gen'},
+ {b:'D',age:64,lab:'Young-old'},
+ {b:'E',age:74,lab:'Rising-need'},
+ {b:'F',age:84,lab:'High-acuity'}];
+const THEMES=[
+ {id:1,short:'Funding',name:'Funding & affordability',c:'#3B82E0'},
+ {id:2,short:'Coordination',name:'Coordination & trusted oversight',c:'#F7941E'},
+ {id:3,short:'Ageing-at-home',name:'Ageing-at-home & autonomy',c:'#16C2B3'},
+ {id:4,short:'Mobility',name:'Mobility & functional prevention',c:'#EA3B2E'},
+ {id:5,short:'Emotional',name:'Emotional & psychological',c:'#EC4899'},
+ {id:6,short:'Purpose',name:'Purpose, identity & contribution',c:'#7C4DD6'},
+ {id:7,short:'Standards/data',name:'Provider standards, records & interop',c:'#4FB63C'},
+ {id:8,short:'Institutional',name:'Institutional channels',c:'#8a826f'}];
+/* seed clusters (A–F). No status used for display here — status is user-assigned per cell. */
+const CLUSTERS=[
+ ['A1','A',1,'Young professionals planning','Fund future care early'],['A2','A',2,'Outstation adult children','Know parents are okay'],
+ ['A3','A',3,'Early-career migrants','Support parents, keep independence'],['A4','A',4,'Noticing early mobility decline','Act before falls'],
+ ['A5','A',5,'Carrying guilt / worry','Discuss ageing honestly'],['A6','A',6,'Younger elders-to-be','Plan later life as contribution'],
+ ['A7','A',7,'Digital family coordinators','Compare reliable providers'],['A8','A',8,'Employees starting parent-care','Help without hiding it'],
+ ['B1','B',1,'Payers balancing duty & career','Pay, keep career mobility'],['B2','B',2,'NRI / outstation payers','Verify care, handle exceptions'],
+ ['B2b','B',2,'Local primary coordinators','Share invisible work'],['B3','B',3,'Parents who prefer home','Accept help, keep control'],
+ ['B4','B',4,'Early arthritis / recovery','Prevent loss of function'],['B5','B',5,'Sandwich-generation','Reduce guilt & overload'],
+ ['B6','B',6,'Seeking positive elder future','Support interests, not just safety'],['B7','B',7,'Coordinating many providers','Know who’s qualified'],
+ ['B8','B',8,'Employers of caregivers','Reduce disruption from crises'],['C1','C',1,'Funding parents & own ageing','Allocate across two generations'],
+ ['C2','C',2,'Caregiver nearing burnout','Coordinate family & workers'],['C3','C',3,'Planning to age at home','Prepare home before dependence'],
+ ['C4','C',4,'Emerging mobility risk','Preserve strength early'],['C5','C',5,'Processing decline & own ageing','Prepare for role change'],
+ ['C6','C',6,'Approaching retirement','Plan continued contribution'],['C7','C',7,'Higher-acuity parent care','Move across hospital/home/rehab'],
+ ['C8','C',8,'Employers / insurers','Cover parent care + retirement'],['D1','D',1,'Independent 60–69','Plan sustainable spending'],
+ ['D2','D',2,'Independent elders & family','Know who coordinates'],['D3','D',3,'Determined to stay home','Keep agency over helpers'],
+ ['D4','D',4,'Active, mobility risk','Stay strong, avoid wheelchair'],['D5','D',5,'Vulnerable to loneliness','Meaningful human contact'],
+ ['D6','D',6,'Skilled semi-retired','Remain contributing'],['D7','D',7,'Navigating many services','Avoid repeating history'],
+ ['D8','D',8,'Retirees leaving benefits','Avoid a coverage cliff'],['E1','E',1,'70–79s & payers','Understand recurring costs'],
+ ['E2','E',2,'Rising daily support needs','Reliable help without micromanaging'],['E3','E',3,'Reject curated facilities','Home without isolation'],
+ ['E4','E',4,'Weakness / fall risk','Maintain function, recover'],['E5','E',5,'Isolated elders','Trust beyond tasks'],
+ ['E6','E',6,'Willing to contribute','Use skills in real roles'],['E7','E',7,'Care managers & clinicians','Coordinate plans & red flags'],
+ ['E8','E',8,'Hospitals, RWAs, insurers','Connect to trusted support'],['F1','F',1,'Funding high-support care','Know total cost & roles'],
+ ['F2','F',2,'High-acuity elders & family','Keep daily care reliable'],['F3','F',3,'Frail, want home & dignity','Intimate support, retained voice'],
+ ['F4','F',4,'Bedbound / post-stroke','Prevent complications'],['F5','F',5,'Frail + caregivers','Address isolation & distress'],
+ ['F6','F',6,'High-support, retained expertise','Preserve identity'],['F7','F',7,'Workers, clinicians, pharmacies','Coordinate complex care'],
+ ['F8','F',8,'Discharge desks & insurers','Bridge high-risk transitions']
+].map(r=>({coord:r[0],band:r[1],theme:r[2],persona:r[3],need:r[4]}));
+const STATUSES=[{k:'Founder',c:'#F7941E'},{k:'Observed',c:'#3FA845'},{k:'Mentor',c:'#b4ac9f'}];
+const statusHex=Object.fromEntries(STATUSES.map(s=>[s.k,s.c]));
+const statusRank={Founder:3,Observed:2,Mentor:1};
+
+const PAYERS=[
+ {id:'nri',lab:'NRI family',c:'#7C4DD6'},{id:'local',lab:'Local family',c:'#3B82E0'},
+ {id:'elder',lab:'Individual elder',c:'#16C2B3'},{id:'employer',lab:'Employer',c:'#F7941E'},
+ {id:'insurer',lab:'Insurer',c:'#EA3B2E'},{id:'rwa',lab:'RWA / community',c:'#4FB63C'},
+ {id:'operator',lab:'Senior-living operator',c:'#EC4899'}];
+const payerById=Object.fromEntries(PAYERS.map(p=>[p.id,p]));
+const CARD_COLORS=['#F7941E','#3B82E0','#7C4DD6','#4FB63C','#EA3B2E','#16C2B3','#EC4899','#1b1b1a'];
+const PRIORS=['Discharge trigger & navigation','NRI clinical continuum','Home-care & attendant ops','Tele-physiotherapy','Facility audit & stay-booking','Assisted living (asset-light)','Home age-proofing','Planning & advisory','Workforce trust / certification','Relationship-to-ageing content','Adaptive clothing','Lifestyle & engagement'];
+
+/* ---------- layout ---------- */
+const GL=146,GT=56,PAD_R=12,PAD_B=30,PH=600,CW=112;
+const nB=BANDS.length, AREA_W=nB*CW, PW=GL+AREA_W+PAD_R, AREA_H=PH-GT-PAD_B, CH=AREA_H/THEMES.length;
+const CARD_W=148,CARD_H=56;
+const clamp=v=>Math.max(0,Math.min(1,v));
+function cellRect(ci,ti){return {x:GL+ci*CW,y:GT+ti*CH,w:CW-6,h:CH-6}}
+function fracToPx(fx,fy){return {x:GL+fx*(AREA_W-CARD_W),y:GT+fy*(AREA_H-CARD_H)}}
+function pxToFrac(px,py){return {fx:clamp((px-GL)/(AREA_W-CARD_W)),fy:clamp((py-GT)/(AREA_H-CARD_H))}}
+function seedAt(b,t){return CLUSTERS.filter(c=>c.band===b&&c.theme===t)}
+function userAt(b,t){return STATE.problems.filter(p=>p.band===b&&p.theme===t)}
+function itemsAt(b,t){return seedAt(b,t).concat(userAt(b,t))}
+
+/* ---------- state ---------- */
+const DEFAULT={v:3,ideas:[],links:[],marks:{},status:{},problems:[]};
+let STATE=clone(DEFAULT), selIdea=null, selCell=null, linkMode=false, linkFrom=null, uid=1, pid=1;
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function nextId(){return 'i'+(uid++)}
+function nextPid(){return 'p'+(pid++)}
+function ensure(){STATE.ideas=STATE.ideas||[];STATE.links=STATE.links||[];STATE.marks=STATE.marks||{};STATE.status=STATE.status||{};STATE.problems=STATE.problems||[];}
+function save(){try{localStorage.setItem('aradhal_lifespan_canvas',JSON.stringify(STATE))}catch(e){}}
+function loadInitial(){
+  try{const h=location.hash;if(h.indexOf('#s=')===0){const s=JSON.parse(decodeURIComponent(escape(atob(h.slice(3)))));if(s&&s.ideas){STATE=s;ensure();seedIds();return;}}}catch(e){}
+  try{const l=localStorage.getItem('aradhal_lifespan_canvas');if(l){const s=JSON.parse(l);if(s&&s.ideas){STATE=s;ensure();seedIds();return;}}}catch(e){}
+  STATE=clone(DEFAULT);ensure();
+}
+function seedIds(){let m=0;STATE.ideas.forEach(i=>{const n=parseInt((i.id||'i0').slice(1));if(n>m)m=n});uid=m+1;
+  let q=0;STATE.problems.forEach(p=>{const n=parseInt((p.id||'p0').slice(1));if(n>q)q=n});pid=q+1;}
+
+/* ---------- plane build ---------- */
+const plane=document.getElementById('plane'),ideaLayer=document.getElementById('ideaLayer'),linksSvg=document.getElementById('links');
+const cellEls={};
+function buildPlane(){
+  plane.style.width=PW+'px';plane.style.height=PH+'px';
+  const seg=48;for(let i=0;i<seg;i++){const a=i/seg,age=a*95;const s=document.createElement('div');s.className='spectrum';
+    s.style.left=(GL+a*AREA_W)+'px';s.style.top=(GT-16)+'px';s.style.width=(AREA_W/seg+1)+'px';s.style.background=ageColor(age);plane.appendChild(s);}
+  BANDS.forEach((bd,ci)=>{const d=document.createElement('div');d.className='colh'+(bd.pre?' pre':'');d.style.left=(GL+ci*CW)+'px';d.style.top='4px';d.style.width=CW+'px';
+    d.innerHTML=`${bd.b} · ${bd.lab}<span class="age">~${bd.age}</span>`;plane.appendChild(d);});
+  THEMES.forEach((t,ti)=>{const d=document.createElement('div');d.className='rowh';d.style.left='0';d.style.top=(GT+ti*CH)+'px';d.style.width=(GL-10)+'px';d.style.height=CH+'px';
+    d.innerHTML=`<span>${t.name}</span><i style="background:${t.c}"></i>`;plane.appendChild(d);});
+  BANDS.forEach((bd,ci)=>{THEMES.forEach((t,ti)=>{const r=cellRect(ci,ti);const key=bd.b+'-'+t.id;
+    const cell=document.createElement('div');cell.className='cell';cell.dataset.key=key;
+    cell.style.left=r.x+'px';cell.style.top=r.y+'px';cell.style.width=r.w+'px';cell.style.height=r.h+'px';
+    cell.addEventListener('click',()=>{if(draggedRecently)return;selectCell(bd.b,t.id);});
+    plane.appendChild(cell);cellEls[key]=cell;});});
+  plane.appendChild(linksSvg);plane.appendChild(ideaLayer);
+  linksSvg.setAttribute('viewBox',`0 0 ${PW} ${PH}`);linksSvg.style.width=PW+'px';linksSvg.style.height=PH+'px';
+  renderCells();
+}
+function renderCells(){
+  BANDS.forEach(bd=>{THEMES.forEach(t=>{const key=bd.b+'-'+t.id;const cell=cellEls[key];if(!cell)return;
+    const items=itemsAt(bd.b,t.id);const st=STATE.status[key];
+    cell.classList.toggle('empty',items.length===0);
+    if(st){cell.style.background=mix('#ffffff',statusHex[st],.20);}
+    else if(items.length){cell.style.background=mix('#ffffff','#a39a8c',.12);}
+    else{cell.style.background='';}
+    if(items.length){const main=items[0];const col=st?statusHex[st]:'#8a826f';
+      cell.innerHTML=`<div class="coord" style="color:${col}">${main.coord||'+'}${items.length>1?' +'+(items.length-1):''}</div><div class="need">${(main.need||'').slice(0,18)}</div>`;}
+    else{cell.innerHTML='';}
+  });});
+}
+
+/* ---------- ideas ---------- */
+function renderIdeas(){ideaLayer.innerHTML='';
+  STATE.ideas.forEach(it=>{const p=fracToPx(it.fx,it.fy);const d=document.createElement('div');
+    d.className='idea'+(it.prior?' prior':'')+(selIdea===it.id?' sel':'')+(linkFrom===it.id?' linking':'');
+    d.style.left=p.x+'px';d.style.top=p.y+'px';d.style.borderLeftColor=it.color||'#F7941E';d.dataset.id=it.id;
+    let dots='';(it.payers||[]).forEach(pd=>{const pp=payerById[pd];if(pp)dots+=`<span style="background:${pp.c}" title="${pp.lab}"></span>`});
+    d.innerHTML=`${it.prior?'<span class="tag">prior</span><br>':''}<span class="t">${esc(it.title||'Untitled')}</span><div class="pdots">${dots}</div>`;
+    attachDrag(d,it);
+    d.addEventListener('click',e=>{if(draggedRecently){e.stopPropagation();return;}if(linkMode){handleLink(it.id);e.stopPropagation();return;}selectIdea(it.id);e.stopPropagation();});
+    ideaLayer.appendChild(d);});
+  renderLinks();
+}
+function renderLinks(){linksSvg.innerHTML='';STATE.links.forEach(lk=>{const a=STATE.ideas.find(x=>x.id===lk.a),b=STATE.ideas.find(x=>x.id===lk.b);if(!a||!b)return;
+  const pa=fracToPx(a.fx,a.fy),pb=fracToPx(b.fx,b.fy);const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+  ln.setAttribute('x1',pa.x+CARD_W/2);ln.setAttribute('y1',pa.y+CARD_H/2);ln.setAttribute('x2',pb.x+CARD_W/2);ln.setAttribute('y2',pb.y+CARD_H/2);
+  ln.style.pointerEvents='stroke';ln.style.cursor='pointer';ln.addEventListener('click',()=>{STATE.links=STATE.links.filter(x=>x!==lk);save();renderLinks();toast('Link removed');});
+  linksSvg.appendChild(ln);});}
+let draggedRecently=false;
+function attachDrag(el,it){let sx,sy,ox,oy,moved;
+  el.addEventListener('pointerdown',e=>{if(linkMode)return;el.setPointerCapture(e.pointerId);el.classList.add('dragging');moved=false;
+    const pr=plane.getBoundingClientRect(),scale=pr.width/PW,p=fracToPx(it.fx,it.fy);ox=p.x;oy=p.y;sx=e.clientX;sy=e.clientY;
+    const mv=ev=>{const dx=(ev.clientX-sx)/scale,dy=(ev.clientY-sy)/scale;if(Math.abs(dx)>2||Math.abs(dy)>2)moved=true;
+      const f=pxToFrac(ox+dx,oy+dy);it.fx=f.fx;it.fy=f.fy;const pp=fracToPx(it.fx,it.fy);el.style.left=pp.x+'px';el.style.top=pp.y+'px';renderLinks();};
+    const up=()=>{el.releasePointerCapture(e.pointerId);el.classList.remove('dragging');el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);
+      if(moved){save();updateWhitespace();renderSummary();draggedRecently=true;setTimeout(()=>draggedRecently=false,60);}};
+    el.addEventListener('pointermove',mv);el.addEventListener('pointerup',up);});}
+
+/* ---------- tray drag ---------- */
+const ghost=document.getElementById('ghost');
+function buildTray(){const tray=document.getElementById('tray');tray.innerHTML='';
+  PRIORS.forEach(title=>{const c=document.createElement('div');c.className='chip';c.textContent=title;c.addEventListener('pointerdown',e=>trayDrag(e,title));tray.appendChild(c);});}
+function trayDrag(e,title){e.preventDefault();ghost.textContent=title;ghost.style.display='block';
+  const mv=ev=>{ghost.style.left=(ev.clientX-66)+'px';ghost.style.top=(ev.clientY-18)+'px';};
+  const up=ev=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);ghost.style.display='none';
+    const pr=plane.getBoundingClientRect();if(ev.clientX>=pr.left&&ev.clientX<=pr.right&&ev.clientY>=pr.top&&ev.clientY<=pr.bottom){
+      const scale=pr.width/PW,px=(ev.clientX-pr.left)/scale-CARD_W/2,py=(ev.clientY-pr.top)/scale-CARD_H/2,f=pxToFrac(px,py);
+      addIdea({title,prior:true,fx:f.fx,fy:f.fy,color:'#b4ac9f'});toast('Prior dropped — now question it');}};
+  mv(e);document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);}
+
+/* ---------- mutations ---------- */
+function addIdea(o){const it=Object.assign({id:nextId(),title:'New idea',note:'',payers:[],color:'#F7941E',fx:.5,fy:.4,prior:false},o||{});
+  STATE.ideas.push(it);save();renderIdeas();updateWhitespace();renderSummary();selectIdea(it.id);return it;}
+function deleteIdea(id){STATE.ideas=STATE.ideas.filter(i=>i.id!==id);STATE.links=STATE.links.filter(l=>l.a!==id&&l.b!==id);if(selIdea===id)selIdea=null;
+  save();renderIdeas();updateWhitespace();renderSummary();clearSel();}
+
+/* ---------- white space ---------- */
+function ideaRect(it){const p=fracToPx(it.fx,it.fy);return {x:p.x,y:p.y,w:CARD_W,h:CARD_H}}
+function hit(a,b){return !(a.x+a.w<b.x||b.x+b.w<a.x||a.y+a.h<b.y||b.y+b.h<a.y)}
+function covered(ci,ti){const r=cellRect(ci,ti);return STATE.ideas.some(it=>hit(ideaRect(it),r))}
+function updateWhitespace(){BANDS.forEach((bd,ci)=>{THEMES.forEach((t,ti)=>{const key=bd.b+'-'+t.id;const cell=cellEls[key];if(!cell)return;
+  const st=STATE.status[key];const strong=(st==='Founder'||st==='Observed');
+  cell.classList.toggle('open',strong&&!covered(ci,ti));
+  const mk=STATE.marks[key];cell.classList.toggle('marked',!!(mk&&mk.flag));});});}
+
+/* ---------- selection ---------- */
+function clearSelCls(){Object.values(cellEls).forEach(c=>c.classList.remove('sel'));ideaLayer.querySelectorAll('.idea.sel').forEach(c=>c.classList.remove('sel'));}
+function selectIdea(id){selIdea=id;selCell=null;clearSelCls();renderIdeas();renderIdeaEditor(id);}
+function selectCell(b,t){selCell=b+'-'+t;selIdea=null;clearSelCls();const c=cellEls[selCell];if(c)c.classList.add('sel');renderIdeas();renderCellDetail(b,t);}
+function clearSel(){selIdea=null;selCell=null;clearSelCls();document.getElementById('selHead').textContent='Selection';
+  document.getElementById('selBody').innerHTML='<p class="kicker" style="margin:0">Click a cell to read it, add needs, set a status, or mark white space. Click an idea card to edit it.</p>';}
+plane.addEventListener('click',e=>{if(e.target===plane)clearSel();});
+
+/* ---------- editors ---------- */
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function renderIdeaEditor(id){const it=STATE.ideas.find(i=>i.id===id);if(!it)return;
+  document.getElementById('selHead').textContent=it.prior?'Idea (prior hypothesis)':'Idea';
+  const body=document.getElementById('selBody');
+  body.innerHTML=`<label class="fld">Title</label><input class="ti" id="eTitle" value="${esc(it.title)}">
+    <label class="fld">Note / the problem it claims to solve</label><textarea class="ti" id="eNote" placeholder="Which cell(s) does this address, and why is it the right wedge?">${esc(it.note||'')}</textarea>
+    <label class="fld">Who pays</label><div class="pillset" id="ePay">${PAYERS.map(p=>`<button class="pill" data-p="${p.id}" aria-pressed="${(it.payers||[]).includes(p.id)}"><i style="background:${p.c}"></i>${p.lab}</button>`).join('')}</div>
+    <label class="fld">Colour</label><div class="swatches" id="eCol">${CARD_COLORS.map(c=>`<button class="sw" data-c="${c}" aria-pressed="${it.color===c}" style="background:${c}"></button>`).join('')}</div>
+    <div class="rowbtns"><button class="btn danger" id="eDel">Delete</button></div>`;
+  body.querySelector('#eTitle').addEventListener('input',e=>{it.title=e.target.value;save();faceUp(it);});
+  body.querySelector('#eNote').addEventListener('input',e=>{it.note=e.target.value;save();});
+  body.querySelectorAll('#ePay .pill').forEach(b=>b.addEventListener('click',()=>{const p=b.dataset.p;it.payers=it.payers||[];it.payers.includes(p)?it.payers=it.payers.filter(x=>x!==p):it.payers.push(p);b.setAttribute('aria-pressed',it.payers.includes(p));save();faceUp(it);}));
+  body.querySelectorAll('#eCol .sw').forEach(b=>b.addEventListener('click',()=>{it.color=b.dataset.c;body.querySelectorAll('#eCol .sw').forEach(x=>x.setAttribute('aria-pressed',x.dataset.c===it.color));save();faceUp(it);}));
+  body.querySelector('#eDel').addEventListener('click',()=>deleteIdea(id));
+}
+function faceUp(it){const d=ideaLayer.querySelector(`.idea[data-id="${it.id}"]`);if(!d)return;d.style.borderLeftColor=it.color||'#F7941E';
+  let dots='';(it.payers||[]).forEach(pd=>{const pp=payerById[pd];if(pp)dots+=`<span style="background:${pp.c}" title="${pp.lab}"></span>`});
+  d.innerHTML=`${it.prior?'<span class="tag">prior</span><br>':''}<span class="t">${esc(it.title||'Untitled')}</span><div class="pdots">${dots}</div>`;}
+function renderCellDetail(b,t){const bd=BANDS.find(x=>x.b===b),th=THEMES.find(x=>x.id===t),key=b+'-'+t;
+  document.getElementById('selHead').textContent=`${b} · ${bd.lab} × ${th.short}`;
+  const items=itemsAt(b,t),cur=STATE.status[key]||'',mk=STATE.marks[key]||{flag:false,note:''};
+  const ci=BANDS.findIndex(x=>x.b===b),ti=THEMES.findIndex(x=>x.id===t);
+  const onCell=STATE.ideas.filter(it=>hit(ideaRect(it),cellRect(ci,ti)));
+  let html=`<p class="kicker" style="margin:0 0 6px">${bd.lab} · theme: ${th.name}</p>
+    <label class="fld">Status label (optional)</label><div class="pillset" id="cStatus">
+      <button class="pill" data-s="" aria-pressed="${cur===''}">None</button>
+      ${STATUSES.map(s=>`<button class="pill" data-s="${s.k}" aria-pressed="${cur===s.k}"><i style="background:${s.c}"></i>${s.k}</button>`).join('')}</div>
+    <label class="fld">Needs in this cell</label><ul class="item-list">`;
+  if(items.length)items.forEach(it=>{html+=`<li><span class="cc" style="color:${cur?statusHex[cur]:'#8a826f'}">${it.coord||'+'}</span><span><span class="cp">${esc(it.persona)}</span> — <span class="cn">${esc(it.need)}</span></span>${it.id?`<button class="rm" data-rm="${it.id}" title="Remove">×</button>`:''}</li>`;});
+  else html+='<li class="cn">Empty — open territory. Add a need, or just drop an idea here.</li>';
+  html+=`</ul>
+    <label class="fld">Add a need here</label>
+    <input class="ti" id="newNeed" placeholder="e.g. build ageing literacy in schools">
+    <div class="rowbtns"><button class="btn" id="addNeed">+ Add need</button><button class="btn" id="mkIdea">+ Idea here</button></div>
+    <label class="fld">Ideas on this cell</label><div style="font-size:12px;color:var(--ink-soft)">${onCell.length?onCell.map(c=>esc(c.title)).join(', '):'<span class="cn">None.</span>'}</div>
+    <label class="fld">White-space note</label><textarea class="ti" id="mkNote" placeholder="What’s the unmet job here?">${esc(mk.note||'')}</textarea>
+    <div class="rowbtns"><button class="btn" id="mkToggle" aria-pressed="${mk.flag}">${mk.flag?'★ Marked white space':'Mark as white space'}</button></div>`;
+  const body=document.getElementById('selBody');body.innerHTML=html;
+  body.querySelectorAll('#cStatus .pill').forEach(btn=>btn.addEventListener('click',()=>{const s=btn.dataset.s;
+    if(s)STATE.status[key]=s;else delete STATE.status[key];save();renderCells();updateWhitespace();renderSummary();renderCellDetail(b,t);}));
+  body.querySelectorAll('.rm').forEach(btn=>btn.addEventListener('click',()=>{STATE.problems=STATE.problems.filter(p=>p.id!==btn.dataset.rm);save();renderCells();updateWhitespace();renderSummary();renderCellDetail(b,t);}));
+  const addNeed=()=>{const v=body.querySelector('#newNeed').value.trim();if(!v)return;STATE.problems.push({id:nextPid(),band:b,theme:t,persona:bd.lab,need:v});save();renderCells();updateWhitespace();renderSummary();renderCellDetail(b,t);toast('Need added');};
+  body.querySelector('#addNeed').addEventListener('click',addNeed);
+  body.querySelector('#newNeed').addEventListener('keydown',e=>{if(e.key==='Enter')addNeed();});
+  body.querySelector('#mkIdea').addEventListener('click',()=>{const r=cellRect(ci,ti);const f=pxToFrac(r.x+r.w/2-CARD_W/2,r.y+r.h/2-CARD_H/2);addIdea({title:'New idea',fx:f.fx,fy:f.fy});});
+  body.querySelector('#mkNote').addEventListener('input',e=>{STATE.marks[key]=STATE.marks[key]||{flag:false};STATE.marks[key].note=e.target.value;save();});
+  body.querySelector('#mkToggle').addEventListener('click',()=>{STATE.marks[key]=STATE.marks[key]||{note:''};STATE.marks[key].flag=!STATE.marks[key].flag;save();updateWhitespace();renderCellDetail(b,t);});
+}
+
+/* ---------- summary ---------- */
+function renderSummary(){const host=document.getElementById('openSummary');const rows=[];let demand=0,cov=0;
+  BANDS.forEach((bd,ci)=>{THEMES.forEach((t,ti)=>{const items=itemsAt(bd.b,t.id);if(!items.length)return;demand++;
+    const c=covered(ci,ti);if(c){cov++;return;}const key=bd.b+'-'+t.id;const st=STATE.status[key]||'';
+    rows.push({b:bd.b,bl:bd.lab,t:t.id,tn:t.short,st,rank:statusRank[st]||0});});});
+  rows.sort((a,b)=>b.rank-a.rank||BANDS.findIndex(x=>x.b===a.b)-BANDS.findIndex(x=>x.b===b.b)||a.t-b.t);
+  let html=`<div class="big">${rows.length}</div><p class="kicker" style="margin:2px 0 10px">open of ${demand} demand cells · ${cov} covered by ideas</p>`;
+  rows.slice(0,8).forEach(r=>{const col=r.st?statusHex[r.st]:'#cdc8bd';html+=`<div class="open-row" data-b="${r.b}" data-t="${r.t}"><span class="dot" style="background:${col}"></span><span><span class="nm">${r.tn}</span> <span class="sb">· ${r.b} ${r.bl}${r.st?' · '+r.st:''}</span></span></div>`;});
+  if(rows.length>8)html+=`<p class="kicker" style="margin:8px 0 0">+${rows.length-8} more</p>`;
+  if(!rows.length)html+='<p class="kicker" style="margin:0">Every demand cell has an idea on it.</p>';
+  host.innerHTML=html;host.querySelectorAll('.open-row').forEach(r=>r.addEventListener('click',()=>selectCell(r.dataset.b,+r.dataset.t)));
+}
+
+/* ---------- link mode ---------- */
+function handleLink(id){if(!linkFrom){linkFrom=id;renderIdeas();toast('Pick a second idea to link');return;}
+  if(linkFrom===id){linkFrom=null;renderIdeas();return;}const key=[linkFrom,id].sort().join('|');
+  if(!STATE.links.some(l=>[l.a,l.b].sort().join('|')===key))STATE.links.push({a:linkFrom,b:id});linkFrom=null;save();renderIdeas();toast('Linked — click a link to remove');}
+document.getElementById('linkBtn').addEventListener('click',()=>{linkMode=!linkMode;linkFrom=null;document.getElementById('linkBtn').setAttribute('aria-pressed',linkMode);renderIdeas();toast(linkMode?'Link mode on — click two ideas':'Link mode off');});
+
+/* ---------- toolbar ---------- */
+document.getElementById('addIdea').addEventListener('click',()=>addIdea({}));
+document.getElementById('resetBtn').addEventListener('click',()=>{if(confirm('Clear all ideas, links, added needs, statuses and marks?')){STATE=clone(DEFAULT);ensure();save();selIdea=selCell=null;renderCells();renderIdeas();updateWhitespace();renderSummary();clearSel();toast('Canvas cleared');}});
+const sharePop=document.getElementById('sharePop');
+document.getElementById('shareBtn').addEventListener('click',e=>{e.stopPropagation();sharePop.classList.toggle('show');});
+document.addEventListener('click',()=>sharePop.classList.remove('show'));sharePop.addEventListener('click',e=>e.stopPropagation());
+document.getElementById('copyLink').addEventListener('click',()=>{try{const b64=btoa(unescape(encodeURIComponent(JSON.stringify(STATE))));const url=location.origin+location.pathname+'#s='+b64;location.hash='s='+b64;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(()=>toast('Share link copied'),()=>window.prompt('Copy this link:',url));else window.prompt('Copy this link:',url);}catch(e){toast('Could not build link')}sharePop.classList.remove('show');});
+document.getElementById('exportJson').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(STATE,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='aradhal_lifespan_canvas.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);sharePop.classList.remove('show');toast('Exported');});
+document.getElementById('importJson').addEventListener('click',()=>{document.getElementById('fileInput').click();sharePop.classList.remove('show');});
+document.getElementById('fileInput').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const s=JSON.parse(r.result);if(s&&s.ideas){STATE=s;ensure();seedIds();save();selIdea=selCell=null;renderCells();renderIdeas();updateWhitespace();renderSummary();clearSel();toast('Imported');}else toast('Not a canvas file');}catch(err){toast('Could not read file')}};
+  r.readAsText(f);e.target.value='';});
+let toastT;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1900);}
+
+document.getElementById('foot').innerHTML='<b>Whole life course, no verdicts baked in.</b> The grid now runs from childhood through high-acuity frailty. The four youngest bands come in empty — add needs to them to build out the early-life and next-generation territory (ageing literacy, the future caregiver forming their attitudes). Nothing carries a conviction label until you set one: click a cell → Status. Everything saves in this browser; Share carries the whole canvas in a link, Export makes a versioned copy.';
+
+/* ---------- init ---------- */
+loadInitial();buildPlane();buildTray();renderIdeas();updateWhitespace();renderSummary();
+</script>
+</body>
+</html>
